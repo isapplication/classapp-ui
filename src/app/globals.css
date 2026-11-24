@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+/* Design system: design-system/class-analytics/MASTER.md. Slate neutrals; --accent is the tenant's
+   brand colour, set per page. Light by default, dark via the system setting or the theme toggle. */
+:root {
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --surface-2: #f1f5f9;
+  --line: #e2e8f0;
+  --ink: #0f172a;
+  --ink-soft: #475569;
+  --ink-faint: #64748b;
+  --accent: #2563eb;
+  --live: #15803d;
+  --warn: #b45309;
+  --crit: #b91c1c;
+  --shadow: 0 1px 2px rgb(15 23 42 / 0.06), 0 1px 3px rgb(15 23 42 / 0.08);
+  --shadow-lg: 0 10px 30px rgb(15 23 42 / 0.1);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0a0f1c;
+    --surface: #111a2d;
+    --surface-2: #172338;
+    --line: #26344b;
+    --ink: #e8eef9;
+    --ink-soft: #a3b1c9;
+    --ink-faint: #8392ab;
+    --live: #4ade80;
+    --warn: #fbbf24;
+    --crit: #f87171;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+    --shadow-lg: 0 12px 34px rgb(0 0 0 / 0.45);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #0a0f1c;
+  --surface: #111a2d;
+  --surface-2: #172338;
+  --line: #26344b;
+  --ink: #e8eef9;
+  --ink-soft: #a3b1c9;
+  --ink-faint: #8392ab;
+  --live: #4ade80;
+  --warn: #fbbf24;
+  --crit: #f87171;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 12px 34px rgb(0 0 0 / 0.45);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-accent: var(--accent);
+  --color-live: var(--live);
+  --color-warn: var(--warn);
+  --color-crit: var(--crit);
+  --shadow-card: var(--shadow);
+  --shadow-lift: var(--shadow-lg);
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 24%, transparent);
+}
+
+@keyframes pulse-dot {
+  50% { opacity: 0.25; }
+}
+.pulse-dot { animation: pulse-dot 1.6s ease-in-out infinite; }
+
+@keyframes view-in {
+  from { opacity: 0; transform: translateY(6px); }
+}
+.view-in { animation: view-in 0.26s ease both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-dot, .view-in { animation: none; }
+  * { transition-duration: 0s !important; }
+}
