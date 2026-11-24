@@ -8,6 +8,7 @@ import { ClassRoom } from "./class-room";
 import { IconMonitor, IconX } from "./icons";
 import { ConsentCard } from "./consent-card";
 import { Button, Card, Spinner } from "./ui";
+import { ThemeToggle } from "./theme-toggle";
 
 type Phase =
   | { kind: "preparing" }
@@ -74,6 +75,7 @@ export function JoinFlow() {
 
   return (
     <div style={style} className="min-h-screen">
+      <ThemeToggle className="fixed top-3 right-3 z-50 inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface/80 px-2.5 py-1.5 text-xs font-semibold text-ink-soft backdrop-blur transition-colors hover:bg-surface-2 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" />
       {phase.kind === "preparing" && (
         <Centered>
           <Spinner />

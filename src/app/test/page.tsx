@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { EncryptJWT, base64url } from "jose";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 // ── random name pools ──────────────────────────────────────────────────────
 const FIRST = ["Riya", "Kabir", "Meera", "Arjun", "Priya", "Dev", "Ananya", "Rahul", "Sneha", "Vikram", "Pooja", "Rohan"];
@@ -18,16 +19,18 @@ type School = {
 type Links = { host: string; attendee: string } | null;
 
 // ── design tokens ──────────────────────────────────────────────────────────
+// Neutral surfaces use CSS variables so the page follows the shared light/dark theme.
+// Accent (ClassApp green) stays hardcoded — it's tenant-semantic, not a surface color.
 const C = {
-  bg:       "#0F172A",
-  card:     "#1B2336",
-  muted:    "#272F42",
-  border:   "#334155",
-  fg:       "#F8FAFC",
-  fgMuted:  "#94A3B8",
+  bg:       "var(--bg)",
+  card:     "var(--surface)",
+  muted:    "var(--surface-2)",
+  border:   "var(--line)",
+  fg:       "var(--ink)",
+  fgMuted:  "var(--ink-soft)",
   accent:   "#22C55E",
   accentBg: "#052e16",
-  error:    "#EF4444",
+  error:    "var(--crit)",
   mono:     "'JetBrains Mono', 'Fira Mono', monospace",
   sans:     "'IBM Plex Sans', system-ui, sans-serif",
 };
@@ -269,7 +272,7 @@ export default function TestPage() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
         *, *::before, *::after { box-sizing: border-box; }
-        input::placeholder { color: #475569; }
+        input::placeholder { color: var(--ink-faint); }
         input:focus { outline: none; }
         @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
       `}</style>
@@ -283,7 +286,7 @@ export default function TestPage() {
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <div style={{ width: 9, height: 9, borderRadius: "50%",
-                  background: school ? C.accent : "#475569",
+                  background: school ? C.accent : "var(--ink-faint)",
                   boxShadow: school ? `0 0 8px ${C.accent}` : "none",
                   transition: "all 0.3s" }} />
                 <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em" }}>
@@ -294,17 +297,20 @@ export default function TestPage() {
                 Generate real join links for prototype testing.
               </p>
             </div>
-            {school && (
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ padding: "3px 10px", borderRadius: 20, background: C.muted,
-                  fontSize: 12, fontFamily: C.mono, color: C.fg }}>{school.slug}</span>
-                <button onClick={disconnect} style={{
-                  padding: "4px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600,
-                  border: `1px solid ${C.border}`, background: "transparent",
-                  color: C.fgMuted, cursor: "pointer",
-                }}>disconnect</button>
-              </div>
-            )}
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              {school && (
+                <>
+                  <span style={{ padding: "3px 10px", borderRadius: 20, background: C.muted,
+                    fontSize: 12, fontFamily: C.mono, color: C.fg }}>{school.slug}</span>
+                  <button onClick={disconnect} style={{
+                    padding: "4px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600,
+                    border: `1px solid ${C.border}`, background: "transparent",
+                    color: C.fgMuted, cursor: "pointer",
+                  }}>disconnect</button>
+                </>
+              )}
+              <ThemeToggle className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface-2 px-2.5 py-1.5 text-xs font-semibold text-ink-soft hover:bg-surface hover:text-ink transition-colors" />
+            </div>
           </div>
 
           {/* connection card */}
