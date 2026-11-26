@@ -1,4 +1,5 @@
-import type { InputHTMLAttributes, ReactNode } from "react";
+import { useState, type InputHTMLAttributes, type ReactNode } from "react";
+import { IconEye, IconEyeOff } from "../icons";
 
 export function Field({ label, hint, children, wide = false }: { label: string; hint?: ReactNode; children: ReactNode; wide?: boolean }) {
   return (
@@ -16,6 +17,31 @@ export function TextInput(props: InputHTMLAttributes<HTMLInputElement>) {
       {...props}
       className={`min-h-10 rounded-lg border border-line bg-surface-2 px-3 text-sm text-ink outline-none transition focus:border-accent focus:ring-3 focus:ring-accent/15 ${props.className ?? ""}`}
     />
+  );
+}
+
+export function PasswordField({ id, label, ...rest }: InputHTMLAttributes<HTMLInputElement> & { label: string }) {
+  const [show, setShow] = useState(false);
+  return (
+    <Field label={label}>
+      <div className="relative">
+        <input
+          id={id}
+          {...rest}
+          type={show ? "text" : "password"}
+          className={`min-h-10 w-full rounded-lg border border-line bg-surface-2 px-3 pr-10 text-sm text-ink outline-none transition focus:border-accent focus:ring-3 focus:ring-accent/15 ${rest.className ?? ""}`}
+        />
+        <button
+          type="button"
+          tabIndex={-1}
+          onClick={() => setShow(v => !v)}
+          className="absolute inset-y-0 right-0 flex items-center px-3 text-ink-faint hover:text-ink"
+          aria-label={show ? "Hide password" : "Show password"}
+        >
+          {show ? <IconEyeOff width={16} height={16} /> : <IconEye width={16} height={16} />}
+        </button>
+      </div>
+    </Field>
   );
 }
 

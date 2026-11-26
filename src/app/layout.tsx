@@ -8,8 +8,8 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Class Analytics",
-  description: "On-device class analytics beside your online class.",
+  title: "MyClass",
+  description: "Turn attention into insight. On-device class analytics beside your online class.",
   robots: { index: false, follow: false },
 };
 

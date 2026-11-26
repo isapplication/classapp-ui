@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { AdminApp } from "@/components/admin/admin-app";
 
-export const metadata: Metadata = { title: "Admin console · Class Analytics" };
+export const metadata: Metadata = { title: "Admin console · MyClass" };
 
 export default function AdminPage() {
   return (

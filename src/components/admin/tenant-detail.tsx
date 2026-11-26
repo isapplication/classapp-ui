@@ -2,11 +2,11 @@
 
 import { useState, type CSSProperties, type FormEvent } from "react";
 import { ApiError } from "@/lib/api";
-import { adminApi, type AuditEntry, type SecretKind, type TenantView } from "@/lib/admin-api";
+import { adminApi, type AuditEntry, type InviteResult, type SecretKind, type TenantUser, type TenantView } from "@/lib/admin-api";
 import type { AdminSession } from "@/lib/admin-session";
 import { useLoad } from "@/lib/use-load";
 import { useRouter } from "next/navigation";
-import { IconEye, IconHistory, IconKey } from "../icons";
+import { IconEye, IconHistory, IconKey, IconUsers } from "../icons";
 import { ClassDetail } from "./class-detail";
 import { ClassList } from "./class-list";
 import { TenantWebhooks } from "./webhooks";
@@ -17,7 +17,7 @@ import { SecretReveal } from "./secret-reveal";
 
 const HEX = /^#[0-9a-f]{6}$/i;
 
-export type TenantSection = "settings" | "keys" | "classes" | "webhooks" | "audit";
+export type TenantSection = "settings" | "keys" | "classes" | "webhooks" | "audit" | "users";
 
 export function TenantDetail({
   session,
@@ -95,6 +95,7 @@ export function TenantDetail({
           <PlatformAccess session={session} tenantId={t.id} />
         </div>
       )}
+      {section === "users" && <Users session={session} tenantId={t.id} />}
     </section>
   );
 }
@@ -339,6 +340,115 @@ function PlatformAccess({ session, tenantId }: { session: AdminSession; tenantId
         ))}
       </ol>
     </Card>
+  );
+}
+
+/** Invite management and user list for the tenant. */
+function Users({ session, tenantId }: { session: AdminSession; tenantId: string }) {
+  const { data, reload } = useLoad(() => adminApi.listUsers(session, tenantId), `users:${tenantId}`);
+  const [email, setEmail] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [invited, setInvited] = useState<InviteResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [copyingId, setCopyingId] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  async function sendInvite(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+    setInvited(null);
+    try {
+      const result = await adminApi.inviteUser(session, tenantId, email.trim());
+      setInvited(result);
+      setEmail("");
+      reload();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not send invite.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function copyLink(userId: string, userEmail: string) {
+    setCopyingId(userId);
+    try {
+      const result = await adminApi.inviteUser(session, tenantId, userEmail);
+      await navigator.clipboard.writeText(result.inviteUrl);
+      setCopiedId(userId);
+      setTimeout(() => setCopiedId(null), 2000);
+      reload();
+    } catch {
+      // silently ignore clipboard errors
+    } finally {
+      setCopyingId(null);
+    }
+  }
+
+  return (
+    <div className="space-y-5">
+      <Card className="max-w-2xl space-y-4">
+        <CardTitle>Invite admin user</CardTitle>
+        <p className="text-sm text-ink-soft">
+          Send an invite link to give someone access to this school's admin console. The link is
+          valid for 72 hours; they set their own password.
+        </p>
+        <form onSubmit={sendInvite} className="flex flex-col gap-3 sm:flex-row sm:items-end">
+          <Field label="Email address">
+            <TextInput
+              id="invite-email"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="principal@school.example"
+            />
+          </Field>
+          <Button type="submit" variant="primary" disabled={busy || !email.trim()}>
+            {busy ? "Inviting…" : "Invite"}
+          </Button>
+        </form>
+        {invited && (
+          <SecretReveal
+            label="Invite link"
+            value={invited.inviteUrl}
+            purpose={`Valid for 72 hours. Send this to ${invited.email}.`}
+          />
+        )}
+        {error && <Notice tone="error">{error}</Notice>}
+      </Card>
+
+      <Card className="max-w-2xl">
+        <CardTitle aside={data && <span className="text-xs font-semibold text-ink-faint tabular-nums">{data.users.length} users</span>}>
+          Admin users
+        </CardTitle>
+        {!data && <p className="text-sm text-ink-soft">Loading…</p>}
+        {data?.users.length === 0 && <p className="text-sm text-ink-soft">No admin users yet.</p>}
+        <div className="divide-y divide-line">
+          {data?.users.map((u: TenantUser) => (
+            <div key={u.id} className="flex flex-wrap items-center justify-between gap-2 py-3 first:pt-0 last:pb-0">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium">{u.email}</p>
+                <p className="text-xs text-ink-faint">Invited by {u.invitedBy} · {new Date(u.invitedAt).toLocaleDateString()}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                {!u.acceptedAt && (
+                  <button
+                    type="button"
+                    onClick={() => copyLink(u.id, u.email)}
+                    disabled={copyingId === u.id}
+                    className="rounded-md border border-line bg-surface px-2.5 py-1 text-xs font-semibold text-ink-soft hover:border-accent hover:text-accent disabled:opacity-50"
+                  >
+                    {copiedId === u.id ? "Copied!" : copyingId === u.id ? "…" : "Copy link"}
+                  </button>
+                )}
+                <Chip tone={u.acceptedAt ? "good" : "neutral"}>{u.acceptedAt ? "Active" : "Pending"}</Chip>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
   );
 }
 

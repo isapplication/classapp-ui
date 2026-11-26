@@ -8,9 +8,9 @@ import { ssoEnabled, startSso } from "@/lib/oidc";
 import { IconShield, IconUser } from "../icons";
 import { ThemeToggle } from "../theme-toggle";
 import { Button, Card } from "../ui";
-import { Field, Notice, TextInput } from "./fields";
+import { Field, Notice, PasswordField, TextInput } from "./fields";
 
-/** Platform admins sign in with the username and password set on the server; schools use SSO. */
+/** Platform admin sign-in. School admins sign in at /{slug}/login. */
 export function SignIn() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -45,26 +45,24 @@ export function SignIn() {
       <ThemeToggle className="absolute top-4 right-4 inline-flex min-h-10 items-center gap-2 rounded-lg border border-line bg-surface px-3 text-[13px] font-semibold text-ink-soft hover:text-ink" />
       <Card className="view-in w-full max-w-sm space-y-5 p-6 shadow-lift sm:p-7">
         <div>
-          <span className="mb-4 grid size-11 place-items-center rounded-xl bg-accent text-lg font-extrabold text-white">C</span>
-          <p className="text-xs font-semibold uppercase tracking-wider text-ink-faint">Class Analytics</p>
+          <span className="mb-4 grid size-11 place-items-center rounded-xl bg-accent text-lg font-extrabold text-white">IS</span>
+          <p className="text-xs font-semibold uppercase tracking-wider text-ink-faint">MyClass</p>
           <h1 className="mt-1 text-xl font-bold">Admin console</h1>
-          <p className="mt-1 text-sm text-ink-soft">Schools, classes, webhooks and keys, in one place.</p>
+          <p className="mt-1 text-sm text-ink-soft">Platform administration. School admins sign in at their school URL.</p>
         </div>
 
         <form onSubmit={submit} className="space-y-3">
           <Field label="Username">
             <TextInput id="username" autoComplete="username" required value={username} onChange={(e) => setUsername(e.target.value)} />
           </Field>
-          <Field label="Password">
-            <TextInput
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </Field>
+          <PasswordField
+            id="password"
+            label="Password"
+            autoComplete="current-password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
           <Button type="submit" variant="primary" className="w-full" disabled={busy || !username.trim() || !password}>
             <IconUser width={16} height={16} />
             {busy ? "Signing in…" : "Sign in"}

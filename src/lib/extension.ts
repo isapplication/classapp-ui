@@ -2,7 +2,7 @@ import { getApiUrl } from "./api";
 import type { Consent, LaunchResult } from "./types";
 
 /**
- * Handoff to the Class Analytics extension. Its bridge script runs only on this join page: it marks
+ * Handoff to the Verto extension. Its bridge script runs only on this join page: it marks
  * the page and relays the launch to the extension, which opens the class panel beside the meeting.
  */
 export function extensionInstalled(): boolean {

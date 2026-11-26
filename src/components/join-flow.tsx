@@ -133,7 +133,7 @@ export function JoinFlow() {
             </span>
             <h1 className="text-lg font-bold">Open your class panel</h1>
             <p className="mt-1.5 text-sm text-ink-soft">
-              Click the Class Analytics icon in your browser&apos;s toolbar (under the puzzle piece if it isn&apos;t pinned).
+              Click the MyClass icon in your browser&apos;s toolbar (under the puzzle piece if it isn&apos;t pinned).
               Your class panel opens on the side.
             </p>
             <Button variant="primary" className="mt-4" onClick={() => window.location.assign(phase.launch.meetingUrl)}>

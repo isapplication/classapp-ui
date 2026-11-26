@@ -115,6 +115,17 @@ export type AccessEntry = { actor: string; action: string; sessionId: string | n
 
 export type LoginResult = { token: string; expiresAt: string; username: string; role: string };
 
+export type TenantUser = {
+  id: string;
+  email: string;
+  invitedAt: string;
+  invitedBy: string;
+  acceptedAt: string | null;
+};
+
+export type InviteResult = { inviteUrl: string; email: string; expiresAt: string };
+export type TenantLoginResult = { token: string; expiresAt: string; email: string; tenantId: string; tenantName: string };
+
 export function authHeaders(session: AdminSession): Record<string, string> {
   return session.kind === "key" ? { "X-Admin-Key": session.key } : { Authorization: `Bearer ${session.token}` };
 }
@@ -199,7 +210,31 @@ export const adminApi = {
       { method: "POST" },
     ),
   accessLog: (s: AdminSession, id: string) => call<{ entries: AccessEntry[] }>(s, `/admin/tenants/${id}/access-log`),
+
+  // Tenant user management
+  inviteUser: (s: AdminSession, tenantId: string, email: string) =>
+    call<InviteResult>(s, `/admin/tenants/${tenantId}/invite`, { method: "POST", body: JSON.stringify({ email }) }),
+  listUsers: (s: AdminSession, tenantId: string) =>
+    call<{ users: TenantUser[] }>(s, `/admin/tenants/${tenantId}/users`),
 };
+
+/** Validates an invite token (no session required). */
+export function validateInvite(token: string) {
+  return send<{ tenantName: string; tenantSlug: string; email: string }>(
+    `/admin/invite?t=${encodeURIComponent(token)}`, {}, {});
+}
+
+/** Accepts an invite and sets the initial password; returns a tenant-scoped JWT. */
+export function acceptInvite(token: string, password: string) {
+  return send<TenantLoginResult>(
+    "/admin/invite/accept", { method: "POST", body: JSON.stringify({ token, password }) }, {});
+}
+
+/** Signs in an existing tenant admin with email + school slug + password. */
+export function tenantAdminLogin(email: string, tenantSlug: string, password: string) {
+  return send<TenantLoginResult>(
+    "/admin/tenant-login", { method: "POST", body: JSON.stringify({ email, tenantSlug, password }) }, {});
+}
 
 function query(params: Record<string, string | number | undefined>) {
   const q = new URLSearchParams();
